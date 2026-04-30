@@ -22,6 +22,14 @@ public class GameScreen implements Screen {
 
     private static final float WORLD_WIDTH = 800f;
     private static final float WORLD_HEIGHT = 480f;
+    private static final float BASE_SPEED = 260f;
+    private static final float SCORE_INTERVAL = 0.1f;
+    private static final int BONUS_LIFE_SCORE = 100;
+    private static final int MAX_LIVES = 5;
+    private static final float FAST_FALL_VELOCITY = -1800f;
+    private static final float FAST_FALL_GRAVITY_MULT = 3.0f;
+    private static final float CACTUS_WIDTH = 44f;
+    private static final float CACTUS_HEIGHT = 60f;
 
     private static final float GROUND_Y = 90f;
     private static final float PLAYER_X = 90f;
@@ -62,12 +70,11 @@ public class GameScreen implements Screen {
 
     private float scoreTimer = 0f;
     private float obstacleTimer = 0f;
-    private float spawnInterval = 1.3f;
     private float hitCooldown = 0f;
+    private boolean lastJumpKeyPressed = false;
 
-    private final float baseSpeed = 260f;
-    private OrthographicCamera camera;
-    private Viewport viewport;
+    private final OrthographicCamera camera;
+    private final Viewport viewport;
 
     public GameScreen(Main game) {
         this.game = game;
@@ -108,63 +115,127 @@ public class GameScreen implements Screen {
 
     private void update(float delta) {
         if (gameOver) {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.justTouched()) {
+            if (Gdx.input.justTouched()) {
                 game.setScreen(new MenuScreen(game));
             }
             return;
         }
 
-        // CONTROLES
-        boolean jumpPressed = Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.UP);
+        boolean isAndroid = Gdx.app.getType() == com.badlogic.gdx.Application.ApplicationType.Android;
+        boolean jumpPressed = readJumpPressed(isAndroid);
+        boolean downPressed = readDownPressed(isAndroid);
 
-        // SPACE solo en escritorio (evita teclado en Android)
-        if (Gdx.app.getType() != com.badlogic.gdx.Application.ApplicationType.Android
-            && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            jumpPressed = true;
+        applyJump(jumpPressed);
+        applyVerticalMovement(downPressed, delta);
+        updateScore(delta);
+        updateDifficultyAndSpawning(delta);
+        updateObstacles(delta);
+        updateHitCooldown(delta);
+        updatePlayerRect();
+        checkCollisions();
+    }
+
+    private boolean readJumpPressed(boolean isAndroid) {
+        boolean currentJumpKeyPressed = Gdx.input.isKeyPressed(Input.Keys.UP)
+                || Gdx.input.isKeyPressed(Input.Keys.SPACE);
+        boolean jumpPressed = currentJumpKeyPressed && !lastJumpKeyPressed;
+        lastJumpKeyPressed = currentJumpKeyPressed;
+
+        if (isAndroid) {
+            boolean rightJustTouched = false;
+            int screenMid = Gdx.graphics.getWidth() / 2;
+
+            for (int p = 0; p < 5; p++) {
+                if (Gdx.input.isTouched(p) && Gdx.input.getX(p) >= screenMid) {
+                    rightJustTouched = true;
+                    break;
+                }
+            }
+
+            if (Gdx.input.justTouched() && Gdx.input.getX(0) >= screenMid) {
+                rightJustTouched = true;
+            }
+
+            return jumpPressed || rightJustTouched;
         }
 
+        return jumpPressed || Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) || Gdx.input.justTouched();
+    }
+
+    private boolean readDownPressed(boolean isAndroid) {
+        boolean downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
+
+        if (!isAndroid) {
+            return downPressed;
+        }
+
+        boolean leftTouched = false;
+        int screenMid = Gdx.graphics.getWidth() / 2;
+
+        for (int p = 0; p < 5; p++) {
+            if (Gdx.input.isTouched(p) && Gdx.input.getX(p) < screenMid) {
+                leftTouched = true;
+                break;
+            }
+        }
+
+        return downPressed || leftTouched;
+    }
+
+    private void applyJump(boolean jumpPressed) {
         if (jumpPressed && isOnGround()) {
             playerVelocityY = JUMP_VELOCITY;
             jumpSound.play(0.7f);
         }
+    }
 
+    private void applyVerticalMovement(boolean downPressed, float delta) {
+        ducking = downPressed && isOnGround();
 
-        ducking = Gdx.input.isKeyPressed(Input.Keys.DOWN) && isOnGround();
+        if (downPressed && !isOnGround()) {
+            playerVelocityY = FAST_FALL_VELOCITY;
+        }
 
-        // FÍSICA DEL SALTO
-        playerVelocityY -= GRAVITY * delta;
+        float gravityMultiplier = (downPressed && !isOnGround()) ? FAST_FALL_GRAVITY_MULT : 1f;
+        playerVelocityY -= GRAVITY * gravityMultiplier * delta;
         playerY += playerVelocityY * delta;
 
         if (playerY < GROUND_Y) {
             playerY = GROUND_Y;
             playerVelocityY = 0f;
         }
+    }
 
-        // PUNTUACIÓN
+    private void updateScore(float delta) {
         scoreTimer += delta;
-        if (scoreTimer >= 0.03f) {
-            score++;
-            scoreTimer = 0f;
-
-            if (score > 0 && score % 100 == 0 && score != lastBonusLifeScore) {
-                lives++;
-                lastBonusLifeScore = score;
-                scoreSound.play(0.7f);
-            }
+        if (scoreTimer < SCORE_INTERVAL) {
+            return;
         }
 
-        // VELOCIDAD Y DIFICULTAD
-        float speed = baseSpeed + (score * 0.08f);
-        spawnInterval = MathUtils.clamp(1.3f - (score / 1200f), 0.6f, 1.3f);
+        score++;
+        scoreTimer = 0f;
 
-        // CREAR OBSTÁCULOS
+        if (score > 0 && score % BONUS_LIFE_SCORE == 0 && score != lastBonusLifeScore) {
+            if (lives < MAX_LIVES) {
+                lives++;
+            }
+            lastBonusLifeScore = score;
+            scoreSound.play(0.7f);
+        }
+    }
+
+    private void updateDifficultyAndSpawning(float delta) {
+        float speed = BASE_SPEED + (score * 0.08f);
+        float spawnInterval = MathUtils.clamp(1.6f - (score / 1500f), 0.9f, 1.6f);
+
         obstacleTimer += delta;
         if (obstacleTimer >= spawnInterval) {
             spawnObstacle(speed);
             obstacleTimer = 0f;
         }
+    }
 
-        // MOVER OBSTÁCULOS
+    private void updateObstacles(float delta) {
         for (int i = obstacles.size - 1; i >= 0; i--) {
             Obstacle obstacle = obstacles.get(i);
             obstacle.x -= obstacle.speed * delta;
@@ -174,34 +245,42 @@ public class GameScreen implements Screen {
                 obstacles.removeIndex(i);
             }
         }
+    }
 
-        // COLISIONES
+    private void updateHitCooldown(float delta) {
         if (hitCooldown > 0f) {
             hitCooldown -= delta;
         }
+    }
 
-        updatePlayerRect();
+    private void checkCollisions() {
+        if (hitCooldown > 0f) {
+            return;
+        }
 
-        if (hitCooldown <= 0f) {
-            for (int i = obstacles.size - 1; i >= 0; i--) {
-                Obstacle obstacle = obstacles.get(i);
-                if (playerRect.overlaps(obstacle.rect)) {
-                    lives--;
-                    hitSound.play(0.8f);
-                    obstacles.removeIndex(i);
-                    hitCooldown = 0.7f;
-
-                    if (lives <= 0) {
-                        gameOver = true;
-                    }
-                    break;
-                }
+        for (int i = obstacles.size - 1; i >= 0; i--) {
+            Obstacle obstacle = obstacles.get(i);
+            if (!playerRect.overlaps(obstacle.rect)) {
+                continue;
             }
+
+            lives--;
+            hitSound.play(0.8f);
+            obstacles.removeIndex(i);
+            hitCooldown = 0.7f;
+
+            if (lives <= 0) {
+                gameOver = true;
+            }
+            break;
         }
     }
 
     private void spawnObstacle(float speed) {
-        boolean bird = MathUtils.randomBoolean();
+        if (MathUtils.randomBoolean(0.2f)) {
+            return;
+        }
+        boolean bird = MathUtils.randomBoolean(0.25f);
 
         if (bird) {
             float width = 70f;
@@ -218,15 +297,12 @@ public class GameScreen implements Screen {
             );
             obstacles.add(obstacle);
         } else {
-            float width = 55f;
-            float height = 75f;
-
             Obstacle obstacle = new Obstacle(
                 cactusTexture,
                 WORLD_WIDTH + 40f,
                 GROUND_Y,
-                width,
-                height,
+                CACTUS_WIDTH,
+                CACTUS_HEIGHT,
                 speed
             );
             obstacles.add(obstacle);
@@ -256,23 +332,19 @@ public class GameScreen implements Screen {
 
         batch.begin();
 
-        // FONDO
         if (night) {
             batch.draw(backgroundNight, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
         } else {
             batch.draw(backgroundDay, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
         }
 
-        // JUGADOR
         float playerDrawHeight = ducking ? DUCK_HEIGHT : PLAYER_HEIGHT;
         batch.draw(playerTexture, PLAYER_X, playerY, PLAYER_WIDTH, playerDrawHeight);
 
-        // OBSTÁCULOS
         for (Obstacle obstacle : obstacles) {
             batch.draw(obstacle.texture, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
         }
 
-        // TEXTO HUD
         font.setColor(night ? Color.WHITE : Color.BLACK);
         font.draw(batch, "Punts: " + score, 20, WORLD_HEIGHT - 20);
         font.draw(batch, "Vides: " + lives, 20, WORLD_HEIGHT - 55);
@@ -299,11 +371,23 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setOnscreenKeyboardVisible(false);
+        Gdx.input.setCatchKey(Input.Keys.UP, true);
+        Gdx.input.setCatchKey(Input.Keys.DOWN, true);
+        Gdx.input.setCatchKey(Input.Keys.SPACE, true);
+        Gdx.input.setCatchKey(Input.Keys.ENTER, true);
+        lastJumpKeyPressed = false;
+        Gdx.input.setInputProcessor(null);
     }
 
     @Override public void pause() {}
     @Override public void resume() {}
-    @Override public void hide() {}
+    @Override public void hide() {
+        Gdx.input.setCatchKey(Input.Keys.UP, false);
+        Gdx.input.setCatchKey(Input.Keys.DOWN, false);
+        Gdx.input.setCatchKey(Input.Keys.SPACE, false);
+        Gdx.input.setCatchKey(Input.Keys.ENTER, false);
+        lastJumpKeyPressed = false;
+    }
 
     @Override
     public void dispose() {
