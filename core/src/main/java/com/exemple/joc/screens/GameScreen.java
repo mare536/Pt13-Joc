@@ -23,13 +23,15 @@ public class GameScreen implements Screen {
     private static final float WORLD_WIDTH = 800f;
     private static final float WORLD_HEIGHT = 480f;
     private static final float BASE_SPEED = 260f;
-    private static final float SCORE_INTERVAL = 0.1f;
+    private static final float SCORE_INTERVAL = 0.08f;
     private static final int BONUS_LIFE_SCORE = 100;
     private static final int MAX_LIVES = 5;
     private static final float FAST_FALL_VELOCITY = -1800f;
     private static final float FAST_FALL_GRAVITY_MULT = 3.0f;
-    private static final float CACTUS_WIDTH = 44f;
-    private static final float CACTUS_HEIGHT = 60f;
+    private static final float CACTUS_WIDTH = 140f;
+    private static final float CACTUS_HEIGHT = 140f;
+    private static final float CACTUS_Y_OFFSET = -40f;
+    private static final float PTERA_LOW_Y = 110f;
 
     private static final float GROUND_Y = 90f;
     private static final float PLAYER_X = 90f;
@@ -285,7 +287,9 @@ public class GameScreen implements Screen {
         if (bird) {
             float width = 70f;
             float height = 50f;
-            float y = MathUtils.randomBoolean() ? GROUND_Y + 115f : GROUND_Y + 150f;
+            float y = MathUtils.randomBoolean()
+                    ? PTERA_LOW_Y
+                    : (MathUtils.randomBoolean() ? GROUND_Y + 115f : GROUND_Y + 150f);
 
             Obstacle obstacle = new Obstacle(
                 pteranodonTexture,
@@ -300,7 +304,7 @@ public class GameScreen implements Screen {
             Obstacle obstacle = new Obstacle(
                 cactusTexture,
                 WORLD_WIDTH + 40f,
-                GROUND_Y,
+                GROUND_Y + CACTUS_Y_OFFSET,
                 CACTUS_WIDTH,
                 CACTUS_HEIGHT,
                 speed
