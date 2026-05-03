@@ -23,14 +23,14 @@ public class GameScreen implements Screen {
     private static final float WORLD_WIDTH = 800f;
     private static final float WORLD_HEIGHT = 480f;
     private static final float BASE_SPEED = 260f;
-    private static final float SCORE_INTERVAL = 0.08f;
+    private static final float SCORE_INTERVAL = 0.05f;
     private static final int BONUS_LIFE_SCORE = 100;
     private static final int MAX_LIVES = 5;
     private static final float FAST_FALL_VELOCITY = -1800f;
     private static final float FAST_FALL_GRAVITY_MULT = 3.0f;
-    private static final float CACTUS_WIDTH = 140f;
-    private static final float CACTUS_HEIGHT = 140f;
-    private static final float CACTUS_Y_OFFSET = -40f;
+    private static final float CACTUS_WIDTH = 60f;
+    private static final float CACTUS_HEIGHT = 70f;
+    private static final float CACTUS_Y_OFFSET = -10f;
     private static final float PTERA_LOW_Y = 110f;
 
     private static final float GROUND_Y = 90f;
@@ -329,7 +329,7 @@ public class GameScreen implements Screen {
     private void draw() {
         boolean night = isNight();
 
-        ScreenUtils.clear(night ? 0.05f : 0.60f, night ? 0.05f : 0.85f, night ? 0.10f : 0.95f, 1f);
+        ScreenUtils.clear(0f, 0f, 0f, 1f);
 
         viewport.apply();
         batch.setProjectionMatrix(camera.combined);
