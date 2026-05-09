@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Player {
-    public static final int MAX_LIVES = 5;
+    private static final int MAX_LIVES = 5;
 
     private static final float PLAYER_X = 90f;
     private static final float GROUND_Y = 90f;
@@ -78,7 +78,7 @@ public class Player {
         return bounds;
     }
 
-    public boolean isOnGround() {
+    private boolean isOnGround() {
         return y <= GROUND_Y + 0.01f;
     }
 
