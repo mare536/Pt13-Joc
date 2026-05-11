@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.math.MathUtils;
 
 public class ScoreManager {
     private final BitmapFont font;
@@ -30,7 +31,11 @@ public class ScoreManager {
         int intervals = (int) (scoreTimer / config.scoreInterval);
         if (intervals > 0) {
             score += intervals * config.scoreStep;
-            scoreTimer -= intervals * config.scoreInterval;
+            scoreTimer = MathUtils.clamp(
+                scoreTimer - (intervals * config.scoreInterval),
+                0f,
+                config.scoreInterval
+            );
         }
 
         if (config.bonusLifeScore > 0 && score >= nextBonusLifeScore) {

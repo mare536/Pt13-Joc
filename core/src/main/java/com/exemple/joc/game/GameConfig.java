@@ -57,294 +57,338 @@ public class GameConfig {
     /** Gravity multiplier while fast falling. */
     public final float fastFallGravityMultiplier;
 
-    private GameConfig(float baseSpeed, float speedIncreasePerScore, float spawnIntervalStart,
-                       float spawnIntervalMin, float spawnIntervalScoreFactor, float spawnSkipChance,
-                       float birdSpawnChance, float birdSpeedBonus, float obstacleScaleMin,
-                       float obstacleScaleMax, float hitCooldownSeconds, int startingLives,
-                       boolean allowDoubleJump, int bonusLifeScore, float scoreInterval,
-                       int scoreStep, int nightStartScore, int nightCyclePeriod, int nightDuration,
-                       float gravity, float jumpVelocity, float fastFallVelocity,
-                       float fastFallGravityMultiplier) {
-        this.baseSpeed = Math.max(0f, baseSpeed);
-        this.speedIncreasePerScore = Math.max(0f, speedIncreasePerScore);
-        this.spawnIntervalStart = Math.max(0.1f, spawnIntervalStart);
-        this.spawnIntervalMin = Math.max(0.1f, Math.min(spawnIntervalMin, this.spawnIntervalStart));
-        this.spawnIntervalScoreFactor = Math.max(100f, spawnIntervalScoreFactor);
-        this.spawnSkipChance = MathUtils.clamp(spawnSkipChance, 0f, 1f);
-        this.birdSpawnChance = MathUtils.clamp(birdSpawnChance, 0f, 1f);
-        this.birdSpeedBonus = Math.max(0f, birdSpeedBonus);
-        float minScale = MathUtils.clamp(obstacleScaleMin, 0.6f, 2.0f);
-        float maxScale = MathUtils.clamp(obstacleScaleMax, 0.6f, 2.0f);
+    private GameConfig(Builder builder) {
+        this.baseSpeed = Math.max(0f, builder.baseSpeed);
+        this.speedIncreasePerScore = Math.max(0f, builder.speedIncreasePerScore);
+        this.spawnIntervalStart = Math.max(0.1f, builder.spawnIntervalStart);
+        this.spawnIntervalMin = Math.max(0.1f, Math.min(builder.spawnIntervalMin, this.spawnIntervalStart));
+        this.spawnIntervalScoreFactor = Math.max(100f, builder.spawnIntervalScoreFactor);
+        this.spawnSkipChance = MathUtils.clamp(builder.spawnSkipChance, 0f, 1f);
+        this.birdSpawnChance = MathUtils.clamp(builder.birdSpawnChance, 0f, 1f);
+        this.birdSpeedBonus = Math.max(0f, builder.birdSpeedBonus);
+        float minScale = MathUtils.clamp(builder.obstacleScaleMin, 0.6f, 2.0f);
+        float maxScale = MathUtils.clamp(builder.obstacleScaleMax, 0.6f, 2.0f);
         this.obstacleScaleMin = Math.min(minScale, maxScale);
         this.obstacleScaleMax = Math.max(minScale, maxScale);
-        this.hitCooldownSeconds = Math.max(0.1f, hitCooldownSeconds);
-        this.startingLives = Math.max(1, Math.min(startingLives, MAX_LIVES));
-        this.allowDoubleJump = allowDoubleJump;
-        this.bonusLifeScore = Math.max(0, bonusLifeScore);
-        this.scoreInterval = Math.max(0.01f, scoreInterval);
-        this.scoreStep = Math.max(1, scoreStep);
-        this.nightStartScore = Math.max(0, nightStartScore);
-        this.nightCyclePeriod = Math.max(1, nightCyclePeriod);
-        this.nightDuration = Math.min(Math.max(0, nightDuration), this.nightCyclePeriod);
-        this.gravity = Math.max(100f, gravity);
-        this.jumpVelocity = Math.max(100f, jumpVelocity);
-        this.fastFallVelocity = Math.min(-100f, fastFallVelocity);
-        this.fastFallGravityMultiplier = Math.max(1f, fastFallGravityMultiplier);
+        this.hitCooldownSeconds = Math.max(0.1f, builder.hitCooldownSeconds);
+        this.startingLives = Math.max(1, Math.min(builder.startingLives, MAX_LIVES));
+        this.allowDoubleJump = builder.allowDoubleJump;
+        this.bonusLifeScore = Math.max(0, builder.bonusLifeScore);
+        this.scoreInterval = Math.max(0.01f, builder.scoreInterval);
+        this.scoreStep = Math.max(1, builder.scoreStep);
+        this.nightStartScore = Math.max(0, builder.nightStartScore);
+        this.nightCyclePeriod = Math.max(1, builder.nightCyclePeriod);
+        this.nightDuration = Math.min(Math.max(0, builder.nightDuration), this.nightCyclePeriod);
+        this.gravity = Math.max(100f, builder.gravity);
+        this.jumpVelocity = Math.max(100f, builder.jumpVelocity);
+        this.fastFallVelocity = Math.min(-100f, builder.fastFallVelocity);
+        this.fastFallGravityMultiplier = Math.max(1f, builder.fastFallGravityMultiplier);
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static GameConfig normal() {
-        return new GameConfig(
-            260f,
-            0.08f,
-            1.6f,
-            0.9f,
-            1500f,
-            0.2f,
-            0.25f,
-            50f,
-            1.0f,
-            1.0f,
-            0.7f,
-            3,
-            false,
-            100,
-            0.05f,
-            1,
-            700,
-            700,
-            200,
-            1800f,
-            780f,
-            -1800f,
-            3.0f
-        );
+        return builder().build();
     }
 
     public static GameConfig easy() {
-        return new GameConfig(
-            220f,
-            0.06f,
-            1.9f,
-            1.2f,
-            1800f,
-            0.3f,
-            0.15f,
-            40f,
-            0.9f,
-            1.0f,
-            0.9f,
-            5,
-            false,
-            80,
-            0.06f,
-            1,
-            900,
-            800,
-            180,
-            1700f,
-            760f,
-            -1600f,
-            2.5f
-        );
+        return builder()
+            .baseSpeed(220f)
+            .speedIncreasePerScore(0.06f)
+            .spawnIntervalStart(1.9f)
+            .spawnIntervalMin(1.2f)
+            .spawnIntervalScoreFactor(1800f)
+            .spawnSkipChance(0.3f)
+            .birdSpawnChance(0.15f)
+            .birdSpeedBonus(40f)
+            .obstacleScaleMin(0.9f)
+            .obstacleScaleMax(1.0f)
+            .hitCooldownSeconds(0.9f)
+            .startingLives(5)
+            .bonusLifeScore(80)
+            .scoreInterval(0.06f)
+            .nightStartScore(900)
+            .nightCyclePeriod(800)
+            .nightDuration(180)
+            .gravity(1700f)
+            .jumpVelocity(760f)
+            .fastFallVelocity(-1600f)
+            .fastFallGravityMultiplier(2.5f)
+            .build();
     }
 
     public static GameConfig hard() {
-        return new GameConfig(
-            310f,
-            0.1f,
-            1.3f,
-            0.7f,
-            1200f,
-            0.05f,
-            0.35f,
-            70f,
-            1.0f,
-            1.2f,
-            0.6f,
-            2,
-            false,
-            140,
-            0.05f,
-            1,
-            600,
-            650,
-            230,
-            1900f,
-            780f,
-            -2000f,
-            3.2f
-        );
+        return builder()
+            .baseSpeed(310f)
+            .speedIncreasePerScore(0.1f)
+            .spawnIntervalStart(1.3f)
+            .spawnIntervalMin(0.7f)
+            .spawnIntervalScoreFactor(1200f)
+            .spawnSkipChance(0.05f)
+            .birdSpawnChance(0.35f)
+            .birdSpeedBonus(70f)
+            .obstacleScaleMax(1.2f)
+            .hitCooldownSeconds(0.6f)
+            .startingLives(2)
+            .bonusLifeScore(140)
+            .nightStartScore(600)
+            .nightCyclePeriod(650)
+            .nightDuration(230)
+            .gravity(1900f)
+            .fastFallVelocity(-2000f)
+            .fastFallGravityMultiplier(3.2f)
+            .build();
     }
 
     public static GameConfig doubleJump() {
-        return new GameConfig(
-            260f,
-            0.08f,
-            1.6f,
-            0.9f,
-            1500f,
-            0.2f,
-            0.25f,
-            50f,
-            1.0f,
-            1.0f,
-            0.7f,
-            3,
-            true,
-            100,
-            0.05f,
-            1,
-            700,
-            700,
-            200,
-            1800f,
-            780f,
-            -1800f,
-            3.0f
-        );
+        return builder()
+            .allowDoubleJump(true)
+            .build();
     }
 
     public static GameConfig denseObstacles() {
-        return new GameConfig(
-            280f,
-            0.09f,
-            1.2f,
-            0.6f,
-            1300f,
-            0.0f,
-            0.4f,
-            60f,
-            0.9f,
-            1.2f,
-            0.5f,
-            3,
-            false,
-            120,
-            0.05f,
-            1,
-            650,
-            600,
-            220,
-            1850f,
-            780f,
-            -1900f,
-            3.0f
-        );
+        return builder()
+            .baseSpeed(280f)
+            .speedIncreasePerScore(0.09f)
+            .spawnIntervalStart(1.2f)
+            .spawnIntervalMin(0.6f)
+            .spawnIntervalScoreFactor(1300f)
+            .spawnSkipChance(0.0f)
+            .birdSpawnChance(0.4f)
+            .birdSpeedBonus(60f)
+            .obstacleScaleMin(0.9f)
+            .obstacleScaleMax(1.2f)
+            .hitCooldownSeconds(0.5f)
+            .bonusLifeScore(120)
+            .nightStartScore(650)
+            .nightCyclePeriod(600)
+            .nightDuration(220)
+            .gravity(1850f)
+            .fastFallVelocity(-1900f)
+            .build();
     }
 
     public static GameConfig floaty() {
-        return new GameConfig(
-            240f,
-            0.07f,
-            1.7f,
-            1.0f,
-            1700f,
-            0.25f,
-            0.2f,
-            40f,
-            0.95f,
-            1.05f,
-            0.8f,
-            4,
-            true,
-            90,
-            0.06f,
-            1,
-            800,
-            750,
-            200,
-            1200f,
-            700f,
-            -1400f,
-            2.0f
-        );
+        return builder()
+            .baseSpeed(240f)
+            .speedIncreasePerScore(0.07f)
+            .spawnIntervalStart(1.7f)
+            .spawnIntervalMin(1.0f)
+            .spawnIntervalScoreFactor(1700f)
+            .spawnSkipChance(0.25f)
+            .birdSpawnChance(0.2f)
+            .birdSpeedBonus(40f)
+            .obstacleScaleMin(0.95f)
+            .obstacleScaleMax(1.05f)
+            .hitCooldownSeconds(0.8f)
+            .startingLives(4)
+            .allowDoubleJump(true)
+            .bonusLifeScore(90)
+            .scoreInterval(0.06f)
+            .nightStartScore(800)
+            .nightCyclePeriod(750)
+            .nightDuration(200)
+            .gravity(1200f)
+            .jumpVelocity(700f)
+            .fastFallVelocity(-1400f)
+            .fastFallGravityMultiplier(2.0f)
+            .build();
     }
 
     public static GameConfig endlessNight() {
-        return new GameConfig(
-            260f,
-            0.08f,
-            1.5f,
-            0.9f,
-            1500f,
-            0.2f,
-            0.3f,
-            50f,
-            1.0f,
-            1.1f,
-            0.7f,
-            3,
-            false,
-            100,
-            0.05f,
-            1,
-            0,
-            400,
-            400,
-            1800f,
-            780f,
-            -1800f,
-            3.0f
-        );
+        return builder()
+            .spawnIntervalStart(1.5f)
+            .birdSpawnChance(0.3f)
+            .obstacleScaleMax(1.1f)
+            .nightStartScore(0)
+            .nightCyclePeriod(400)
+            .nightDuration(400)
+            .build();
     }
 
     public static GameConfig rapidScore() {
-        return new GameConfig(
-            255f,
-            0.08f,
-            1.6f,
-            0.9f,
-            1500f,
-            0.2f,
-            0.25f,
-            50f,
-            1.0f,
-            1.0f,
-            0.7f,
-            3,
-            false,
-            100,
-            0.035f,
-            2,
-            700,
-            700,
-            200,
-            1800f,
-            780f,
-            -1800f,
-            3.0f
-        );
+        return builder()
+            .baseSpeed(255f)
+            .scoreInterval(0.035f)
+            .scoreStep(2)
+            .build();
     }
 
     /**
      * Preset intended for customization: adjust these values according to your requirements.
      */
     public static GameConfig custom() {
-        return new GameConfig(
-            250f,
-            0.08f,
-            1.6f,
-            0.9f,
-            1500f,
-            0.2f,
-            0.25f,
-            50f,
-            1.0f,
-            1.0f,
-            0.7f,
-            3,
-            false,
-            100,
-            0.05f,
-            1,
-            700,
-            700,
-            200,
-            1800f,
-            780f,
-            -1800f,
-            3.0f
-        );
+        return builder()
+            .baseSpeed(250f)
+            .speedIncreasePerScore(0.08f)
+            .spawnIntervalStart(1.6f)
+            .spawnIntervalMin(0.9f)
+            .spawnIntervalScoreFactor(1500f)
+            .spawnSkipChance(0.2f)
+            .birdSpawnChance(0.25f)
+            .birdSpeedBonus(50f)
+            .obstacleScaleMin(1.0f)
+            .obstacleScaleMax(1.0f)
+            .hitCooldownSeconds(0.7f)
+            .startingLives(3)
+            .allowDoubleJump(false)
+            .bonusLifeScore(100)
+            .scoreInterval(0.05f)
+            .scoreStep(1)
+            .nightStartScore(700)
+            .nightCyclePeriod(700)
+            .nightDuration(200)
+            .gravity(1800f)
+            .jumpVelocity(780f)
+            .fastFallVelocity(-1800f)
+            .fastFallGravityMultiplier(3.0f)
+            .build();
     }
 
+    public static final class Builder {
+        private float baseSpeed = 260f;
+        private float speedIncreasePerScore = 0.08f;
+        private float spawnIntervalStart = 1.6f;
+        private float spawnIntervalMin = 0.9f;
+        private float spawnIntervalScoreFactor = 1500f;
+        private float spawnSkipChance = 0.2f;
+        private float birdSpawnChance = 0.25f;
+        private float birdSpeedBonus = 50f;
+        private float obstacleScaleMin = 1.0f;
+        private float obstacleScaleMax = 1.0f;
+        private float hitCooldownSeconds = 0.7f;
+        private int startingLives = 3;
+        private boolean allowDoubleJump = false;
+        private int bonusLifeScore = 100;
+        private float scoreInterval = 0.05f;
+        private int scoreStep = 1;
+        private int nightStartScore = 700;
+        private int nightCyclePeriod = 700;
+        private int nightDuration = 200;
+        private float gravity = 1800f;
+        private float jumpVelocity = 780f;
+        private float fastFallVelocity = -1800f;
+        private float fastFallGravityMultiplier = 3.0f;
+
+        public Builder baseSpeed(float baseSpeed) {
+            this.baseSpeed = baseSpeed;
+            return this;
+        }
+
+        public Builder speedIncreasePerScore(float speedIncreasePerScore) {
+            this.speedIncreasePerScore = speedIncreasePerScore;
+            return this;
+        }
+
+        public Builder spawnIntervalStart(float spawnIntervalStart) {
+            this.spawnIntervalStart = spawnIntervalStart;
+            return this;
+        }
+
+        public Builder spawnIntervalMin(float spawnIntervalMin) {
+            this.spawnIntervalMin = spawnIntervalMin;
+            return this;
+        }
+
+        public Builder spawnIntervalScoreFactor(float spawnIntervalScoreFactor) {
+            this.spawnIntervalScoreFactor = spawnIntervalScoreFactor;
+            return this;
+        }
+
+        public Builder spawnSkipChance(float spawnSkipChance) {
+            this.spawnSkipChance = spawnSkipChance;
+            return this;
+        }
+
+        public Builder birdSpawnChance(float birdSpawnChance) {
+            this.birdSpawnChance = birdSpawnChance;
+            return this;
+        }
+
+        public Builder birdSpeedBonus(float birdSpeedBonus) {
+            this.birdSpeedBonus = birdSpeedBonus;
+            return this;
+        }
+
+        public Builder obstacleScaleMin(float obstacleScaleMin) {
+            this.obstacleScaleMin = obstacleScaleMin;
+            return this;
+        }
+
+        public Builder obstacleScaleMax(float obstacleScaleMax) {
+            this.obstacleScaleMax = obstacleScaleMax;
+            return this;
+        }
+
+        public Builder hitCooldownSeconds(float hitCooldownSeconds) {
+            this.hitCooldownSeconds = hitCooldownSeconds;
+            return this;
+        }
+
+        public Builder startingLives(int startingLives) {
+            this.startingLives = startingLives;
+            return this;
+        }
+
+        public Builder allowDoubleJump(boolean allowDoubleJump) {
+            this.allowDoubleJump = allowDoubleJump;
+            return this;
+        }
+
+        public Builder bonusLifeScore(int bonusLifeScore) {
+            this.bonusLifeScore = bonusLifeScore;
+            return this;
+        }
+
+        public Builder scoreInterval(float scoreInterval) {
+            this.scoreInterval = scoreInterval;
+            return this;
+        }
+
+        public Builder scoreStep(int scoreStep) {
+            this.scoreStep = scoreStep;
+            return this;
+        }
+
+        public Builder nightStartScore(int nightStartScore) {
+            this.nightStartScore = nightStartScore;
+            return this;
+        }
+
+        public Builder nightCyclePeriod(int nightCyclePeriod) {
+            this.nightCyclePeriod = nightCyclePeriod;
+            return this;
+        }
+
+        public Builder nightDuration(int nightDuration) {
+            this.nightDuration = nightDuration;
+            return this;
+        }
+
+        public Builder gravity(float gravity) {
+            this.gravity = gravity;
+            return this;
+        }
+
+        public Builder jumpVelocity(float jumpVelocity) {
+            this.jumpVelocity = jumpVelocity;
+            return this;
+        }
+
+        public Builder fastFallVelocity(float fastFallVelocity) {
+            this.fastFallVelocity = fastFallVelocity;
+            return this;
+        }
+
+        public Builder fastFallGravityMultiplier(float fastFallGravityMultiplier) {
+            this.fastFallGravityMultiplier = fastFallGravityMultiplier;
+            return this;
+        }
+
+        public GameConfig build() {
+            return new GameConfig(this);
+        }
+    }
 }
