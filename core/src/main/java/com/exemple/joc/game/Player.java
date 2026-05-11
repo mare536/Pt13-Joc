@@ -33,10 +33,6 @@ public class Player {
     }
 
     public void jump(AudioManager audioManager) {
-        if (isOnGround()) {
-            remainingJumps = maxJumps;
-        }
-
         if (remainingJumps <= 0) {
             return;
         }
