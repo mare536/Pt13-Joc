@@ -28,6 +28,7 @@ public class GameScreen implements Screen {
     private static final float CACTUS_Y_OFFSET = -10f;
     private static final float PTERA_LOW_Y = 110f;
     private static final float GROUND_Y = 90f;
+    private static final int MAX_TOUCH_POINTERS = 5;
 
     private final Main game;
     private final SpriteBatch batch;
@@ -134,7 +135,7 @@ public class GameScreen implements Screen {
             boolean rightJustTouched = false;
             int screenMid = Gdx.graphics.getWidth() / 2;
 
-            for (int p = 0; p < 5; p++) {
+            for (int p = 0; p < MAX_TOUCH_POINTERS; p++) {
                 if (Gdx.input.isTouched(p) && Gdx.input.getX(p) >= screenMid) {
                     rightJustTouched = true;
                     break;
@@ -161,7 +162,7 @@ public class GameScreen implements Screen {
         boolean leftTouched = false;
         int screenMid = Gdx.graphics.getWidth() / 2;
 
-        for (int p = 0; p < 5; p++) {
+        for (int p = 0; p < MAX_TOUCH_POINTERS; p++) {
             if (Gdx.input.isTouched(p) && Gdx.input.getX(p) < screenMid) {
                 leftTouched = true;
                 break;
@@ -327,7 +328,7 @@ public class GameScreen implements Screen {
 
     private int readTouchCount() {
         int touchCount = 0;
-        for (int p = 0; p < 5; p++) {
+        for (int p = 0; p < MAX_TOUCH_POINTERS; p++) {
             if (Gdx.input.isTouched(p)) {
                 touchCount++;
             }

@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
  * Centralized gameplay tuning values for speed, spawning, scoring, and physics.
  * Presets are simple data-only variants; edit {@link #custom()} to create your own mode.
  * Chance fields are 0..1, interval fields are positive, and scale fields are 0.6..2.0.
+ * The Builder validates and clamps incoming values to keep them within those ranges.
  */
 public class GameConfig {
     public static final int MAX_LIVES = 5;

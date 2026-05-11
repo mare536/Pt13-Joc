@@ -34,9 +34,6 @@ public class ScoreManager {
         if (intervals > 0) {
             score += intervals * config.scoreStep;
             scoreTimer -= intervals * config.scoreInterval;
-            if (scoreTimer < 0f) {
-                scoreTimer = 0f;
-            }
         }
 
         applyThresholds(player, audioManager);
