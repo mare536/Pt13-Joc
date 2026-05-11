@@ -33,9 +33,8 @@ For example, `core:clean` removes `build` folder only from the `core` project.
 
 ## Modos de juego rápidos
 
-En `core/src/main/java/com/exemple/joc/screens/GameScreen.java` puedes cambiar el modo en la línea:
-
-`this.gameConfig = GameConfig.normal();`
+En `core/src/main/java/com/exemple/joc/screens/GameScreen.java`, dentro del constructor,
+cambia la línea que contiene `this.gameConfig =` (por ejemplo: `this.gameConfig = GameConfig.normal();`).
 
 Opciones listas:
 - `GameConfig.easy()` (más lento y más vidas)

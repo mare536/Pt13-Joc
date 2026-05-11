@@ -5,8 +5,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Player {
-    private static final int MAX_LIVES = 5;
-
     private static final float PLAYER_X = 90f;
     private static final float GROUND_Y = 90f;
     private static final float PLAYER_WIDTH = 64f;
@@ -28,8 +26,7 @@ public class Player {
     private int remainingJumps;
 
     public Player(GameConfig config) {
-        int startingLives = Math.min(config.startingLives, MAX_LIVES);
-        this.lives = Math.max(1, startingLives);
+        this.lives = config.startingLives;
         this.maxJumps = config.allowDoubleJump ? 2 : 1;
         this.remainingJumps = maxJumps;
         updateBounds();
@@ -70,7 +67,7 @@ public class Player {
     }
 
     public void gainBonusLife() {
-        if (lives < MAX_LIVES) {
+        if (lives < GameConfig.MAX_LIVES) {
             lives++;
         }
     }

@@ -1,6 +1,8 @@
 package com.exemple.joc.game;
 
 public class GameConfig {
+    public static final int MAX_LIVES = 5;
+
     public final float baseSpeed;
     public final float spawnIntervalStart;
     public final float spawnIntervalMin;
@@ -14,7 +16,7 @@ public class GameConfig {
         this.spawnIntervalStart = spawnIntervalStart;
         this.spawnIntervalMin = spawnIntervalMin;
         this.spawnIntervalScoreFactor = spawnIntervalScoreFactor;
-        this.startingLives = startingLives;
+        this.startingLives = Math.max(1, Math.min(startingLives, MAX_LIVES));
         this.allowDoubleJump = allowDoubleJump;
     }
 
@@ -35,6 +37,6 @@ public class GameConfig {
     }
 
     public static GameConfig custom() {
-        return new GameConfig(260f, 1.6f, 0.9f, 1500f, 3, false);
+        return new GameConfig(240f, 1.7f, 1.0f, 1600f, 4, false);
     }
 }
