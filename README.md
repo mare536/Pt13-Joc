@@ -41,7 +41,7 @@ Available presets:
 - `GameConfig.easy()` (slower and more lives)
 - `GameConfig.hard()` (faster and fewer lives)
 - `GameConfig.doubleJump()` (double jump)
-- `GameConfig.featurePack()` (pausa + escudo + pisoton + fantasma)
+- `GameConfig.featurePack()` (pausa + escudo + pisotón + fantasma)
 - `GameConfig.denseObstacles()` (more frequent obstacles and higher bird chance)
 - `GameConfig.floaty()` (lower gravity + double jump)
 - `GameConfig.endlessNight()` (night mode from the start)
