@@ -7,16 +7,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
 public class ScoreManager {
-    private static final float SCORE_INTERVAL = 0.05f;
-    private static final int BONUS_LIFE_SCORE = 100;
-
     private final BitmapFont font;
+    private final GameConfig config;
 
     private int score = 0;
-    private int lastBonusLifeScore = -1;
+    private int lastBonusLifeScore = 0;
     private float scoreTimer = 0f;
 
-    public ScoreManager() {
+    public ScoreManager(GameConfig config) {
+        this.config = config;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/pixel.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 28;
@@ -27,22 +26,25 @@ public class ScoreManager {
 
     public void update(float delta, Player player, AudioManager audioManager) {
         scoreTimer += delta;
-        if (scoreTimer < SCORE_INTERVAL) {
-            return;
+        while (scoreTimer >= config.scoreInterval) {
+            score += config.scoreStep;
+            scoreTimer -= config.scoreInterval;
         }
 
-        score++;
-        scoreTimer = 0f;
-
-        if (score > 0 && score % BONUS_LIFE_SCORE == 0 && score != lastBonusLifeScore) {
+        if (config.bonusLifeScore > 0 && score >= lastBonusLifeScore + config.bonusLifeScore) {
             player.gainBonusLife();
-            lastBonusLifeScore = score;
+            lastBonusLifeScore = (score / config.bonusLifeScore) * config.bonusLifeScore;
             audioManager.playScore();
         }
     }
 
     public boolean isNight() {
-        return score >= 700 && (score % 700) < 200;
+        if (score < config.nightStartScore) {
+            return false;
+        }
+        int cycleScore = score - config.nightStartScore;
+        int cyclePosition = cycleScore % config.nightCyclePeriod;
+        return cyclePosition < config.nightDuration;
     }
 
     public void drawHud(SpriteBatch batch, int lives, float worldWidth, float worldHeight) {

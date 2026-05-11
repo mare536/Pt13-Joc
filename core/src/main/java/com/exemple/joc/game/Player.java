@@ -10,14 +10,14 @@ public class Player {
     private static final float PLAYER_WIDTH = 64f;
     private static final float PLAYER_HEIGHT = 72f;
     private static final float DUCK_HEIGHT = 48f;
-    private static final float GRAVITY = 1800f;
-    private static final float JUMP_VELOCITY = 780f;
-    private static final float FAST_FALL_VELOCITY = -1800f;
-    private static final float FAST_FALL_GRAVITY_MULT = 3.0f;
 
     private final Rectangle bounds = new Rectangle();
 
     private final int maxJumps;
+    private final float gravity;
+    private final float jumpVelocity;
+    private final float fastFallVelocity;
+    private final float fastFallGravityMultiplier;
 
     private float y = GROUND_Y;
     private float velocityY = 0f;
@@ -29,6 +29,10 @@ public class Player {
         this.lives = config.startingLives;
         this.maxJumps = config.allowDoubleJump ? 2 : 1;
         this.remainingJumps = maxJumps;
+        this.gravity = config.gravity;
+        this.jumpVelocity = config.jumpVelocity;
+        this.fastFallVelocity = config.fastFallVelocity;
+        this.fastFallGravityMultiplier = config.fastFallGravityMultiplier;
         updateBounds();
     }
 
@@ -37,7 +41,7 @@ public class Player {
             return;
         }
 
-        velocityY = JUMP_VELOCITY;
+        velocityY = jumpVelocity;
         remainingJumps--;
         audioManager.playJump();
     }
@@ -46,11 +50,11 @@ public class Player {
         ducking = downPressed && isOnGround();
 
         if (downPressed && !isOnGround()) {
-            velocityY = FAST_FALL_VELOCITY;
+            velocityY = fastFallVelocity;
         }
 
-        float gravityMultiplier = (downPressed && !isOnGround()) ? FAST_FALL_GRAVITY_MULT : 1f;
-        velocityY -= GRAVITY * gravityMultiplier * delta;
+        float gravityMultiplier = (downPressed && !isOnGround()) ? fastFallGravityMultiplier : 1f;
+        velocityY -= gravity * gravityMultiplier * delta;
         y += velocityY * delta;
 
         if (y < GROUND_Y) {

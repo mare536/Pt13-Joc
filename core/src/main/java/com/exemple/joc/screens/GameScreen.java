@@ -53,8 +53,8 @@ public class GameScreen implements Screen {
         this.game = game;
         this.batch = new SpriteBatch();
         this.audioManager = new AudioManager();
-        this.scoreManager = new ScoreManager();
         this.gameConfig = GameConfig.normal();
+        this.scoreManager = new ScoreManager(gameConfig);
         this.player = new Player(gameConfig);
         camera = new OrthographicCamera();
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
@@ -150,7 +150,7 @@ public class GameScreen implements Screen {
     }
 
     private void updateDifficultyAndSpawning(float delta) {
-        float speed = gameConfig.baseSpeed + (scoreManager.getScore() * 0.08f);
+        float speed = gameConfig.baseSpeed + (scoreManager.getScore() * gameConfig.speedIncreasePerScore);
         float spawnInterval = MathUtils.clamp(
             gameConfig.spawnIntervalStart - (scoreManager.getScore() / gameConfig.spawnIntervalScoreFactor),
             gameConfig.spawnIntervalMin,
@@ -195,7 +195,7 @@ public class GameScreen implements Screen {
             player.loseLife();
             audioManager.playHit();
             obstacles.removeIndex(i);
-            hitCooldown = 0.7f;
+            hitCooldown = gameConfig.hitCooldownSeconds;
 
             if (!player.hasLivesLeft()) {
                 gameOver = true;
@@ -205,14 +205,15 @@ public class GameScreen implements Screen {
     }
 
     private void spawnObstacle(float speed) {
-        if (MathUtils.randomBoolean(0.2f)) {
+        if (MathUtils.random() < gameConfig.spawnSkipChance) {
             return;
         }
-        boolean bird = MathUtils.randomBoolean(0.25f);
+        boolean bird = MathUtils.random() < gameConfig.birdSpawnChance;
+        float scale = MathUtils.random(gameConfig.obstacleScaleMin, gameConfig.obstacleScaleMax);
 
         if (bird) {
-            float width = 70f;
-            float height = 50f;
+            float width = 70f * scale;
+            float height = 50f * scale;
             float y = MathUtils.randomBoolean()
                     ? PTERA_LOW_Y
                     : (MathUtils.randomBoolean() ? GROUND_Y + 115f : GROUND_Y + 150f);
@@ -223,7 +224,7 @@ public class GameScreen implements Screen {
                 y,
                 width,
                 height,
-                speed + 50f
+                speed + gameConfig.birdSpeedBonus
             );
             obstacles.add(obstacle);
         } else {
@@ -231,8 +232,8 @@ public class GameScreen implements Screen {
                 cactusTexture,
                 WORLD_WIDTH + 40f,
                 GROUND_Y + CACTUS_Y_OFFSET,
-                CACTUS_WIDTH,
-                CACTUS_HEIGHT,
+                CACTUS_WIDTH * scale,
+                CACTUS_HEIGHT * scale,
                 speed
             );
             obstacles.add(obstacle);
