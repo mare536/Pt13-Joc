@@ -37,7 +37,7 @@ public class GameConfig {
     }
 
     /**
-     * Preset pensado para personalizar: ajusta estos valores según el cambio que te pidan.
+     * Preset intended for customization: adjust these values according to your requirements.
      */
     public static GameConfig custom() {
         return new GameConfig(240f, 1.7f, 1.0f, 1600f, 4, false);
