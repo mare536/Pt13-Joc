@@ -31,7 +31,8 @@ public class ScoreManager {
             scoreTimer -= config.scoreInterval;
         }
 
-        if (config.bonusLifeScore > 0 && score >= lastBonusLifeScore + config.bonusLifeScore) {
+        if (score > 0 && config.bonusLifeScore > 0
+                && score >= lastBonusLifeScore + config.bonusLifeScore) {
             player.gainBonusLife();
             lastBonusLifeScore = (score / config.bonusLifeScore) * config.bonusLifeScore;
             audioManager.playScore();

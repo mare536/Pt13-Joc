@@ -1,5 +1,7 @@
 package com.exemple.joc.game;
 
+import com.badlogic.gdx.math.MathUtils;
+
 public class GameConfig {
     public static final int MAX_LIVES = 5;
 
@@ -40,11 +42,11 @@ public class GameConfig {
         this.spawnIntervalStart = Math.max(0.1f, spawnIntervalStart);
         this.spawnIntervalMin = Math.max(0.1f, Math.min(spawnIntervalMin, this.spawnIntervalStart));
         this.spawnIntervalScoreFactor = Math.max(100f, spawnIntervalScoreFactor);
-        this.spawnSkipChance = clamp(spawnSkipChance, 0f, 1f);
-        this.birdSpawnChance = clamp(birdSpawnChance, 0f, 1f);
+        this.spawnSkipChance = MathUtils.clamp(spawnSkipChance, 0f, 1f);
+        this.birdSpawnChance = MathUtils.clamp(birdSpawnChance, 0f, 1f);
         this.birdSpeedBonus = Math.max(0f, birdSpeedBonus);
-        float minScale = clamp(obstacleScaleMin, 0.6f, 2.0f);
-        float maxScale = clamp(obstacleScaleMax, 0.6f, 2.0f);
+        float minScale = MathUtils.clamp(obstacleScaleMin, 0.6f, 2.0f);
+        float maxScale = MathUtils.clamp(obstacleScaleMax, 0.6f, 2.0f);
         this.obstacleScaleMin = Math.min(minScale, maxScale);
         this.obstacleScaleMax = Math.max(minScale, maxScale);
         this.hitCooldownSeconds = Math.max(0.1f, hitCooldownSeconds);
@@ -317,7 +319,4 @@ public class GameConfig {
         );
     }
 
-    private static float clamp(float value, float min, float max) {
-        return Math.max(min, Math.min(max, value));
-    }
 }
