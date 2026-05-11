@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.exemple.joc.Main;
 import com.exemple.joc.game.AudioManager;
+import com.exemple.joc.game.GameConfig;
 import com.exemple.joc.game.Obstacle;
 import com.exemple.joc.game.Player;
 import com.exemple.joc.game.ScoreManager;
@@ -21,7 +22,6 @@ public class GameScreen implements Screen {
 
     private static final float WORLD_WIDTH = 800f;
     private static final float WORLD_HEIGHT = 480f;
-    private static final float BASE_SPEED = 260f;
     private static final float CACTUS_WIDTH = 60f;
     private static final float CACTUS_HEIGHT = 70f;
     private static final float CACTUS_Y_OFFSET = -10f;
@@ -32,6 +32,7 @@ public class GameScreen implements Screen {
     private final SpriteBatch batch;
     private final AudioManager audioManager;
     private final ScoreManager scoreManager;
+    private final GameConfig gameConfig;
     private final Player player;
     private final Array<Obstacle> obstacles = new Array<>();
 
@@ -53,7 +54,8 @@ public class GameScreen implements Screen {
         this.batch = new SpriteBatch();
         this.audioManager = new AudioManager();
         this.scoreManager = new ScoreManager();
-        this.player = new Player();
+        this.gameConfig = GameConfig.normal();
+        this.player = new Player(gameConfig);
         camera = new OrthographicCamera();
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         viewport.apply();
@@ -148,8 +150,12 @@ public class GameScreen implements Screen {
     }
 
     private void updateDifficultyAndSpawning(float delta) {
-        float speed = BASE_SPEED + (scoreManager.getScore() * 0.08f);
-        float spawnInterval = MathUtils.clamp(1.6f - (scoreManager.getScore() / 1500f), 0.9f, 1.6f);
+        float speed = gameConfig.baseSpeed + (scoreManager.getScore() * 0.08f);
+        float spawnInterval = MathUtils.clamp(
+            gameConfig.spawnIntervalStart - (scoreManager.getScore() / gameConfig.spawnIntervalScoreFactor),
+            gameConfig.spawnIntervalMin,
+            gameConfig.spawnIntervalStart
+        );
 
         obstacleTimer += delta;
         if (obstacleTimer >= spawnInterval) {

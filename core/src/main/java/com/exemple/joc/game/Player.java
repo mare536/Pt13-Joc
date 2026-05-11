@@ -19,21 +19,33 @@ public class Player {
 
     private final Rectangle bounds = new Rectangle();
 
+    private final int maxJumps;
+
     private float y = GROUND_Y;
     private float velocityY = 0f;
     private boolean ducking = false;
-    private int lives = 3;
+    private int lives;
+    private int remainingJumps;
 
-    public Player() {
+    public Player(GameConfig config) {
+        int startingLives = Math.min(config.startingLives, MAX_LIVES);
+        this.lives = Math.max(1, startingLives);
+        this.maxJumps = config.allowDoubleJump ? 2 : 1;
+        this.remainingJumps = maxJumps;
         updateBounds();
     }
 
     public void jump(AudioManager audioManager) {
-        if (!isOnGround()) {
+        if (isOnGround()) {
+            remainingJumps = maxJumps;
+        }
+
+        if (remainingJumps <= 0) {
             return;
         }
 
         velocityY = JUMP_VELOCITY;
+        remainingJumps--;
         audioManager.playJump();
     }
 
@@ -51,6 +63,7 @@ public class Player {
         if (y < GROUND_Y) {
             y = GROUND_Y;
             velocityY = 0f;
+            remainingJumps = maxJumps;
         }
 
         updateBounds();

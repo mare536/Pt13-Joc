@@ -30,3 +30,18 @@ Useful Gradle tasks and flags:
 
 Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
 For example, `core:clean` removes `build` folder only from the `core` project.
+
+## Modos de juego rápidos
+
+En `core/src/main/java/com/exemple/joc/screens/GameScreen.java` puedes cambiar el modo en la línea:
+
+`this.gameConfig = GameConfig.normal();`
+
+Opciones listas:
+- `GameConfig.easy()` (más lento y más vidas)
+- `GameConfig.hard()` (más rápido y menos vidas)
+- `GameConfig.doubleJump()` (salto doble)
+- `GameConfig.custom()` (para tu modificación)
+
+Si quieres personalizar, edita los valores del método `custom()` en
+`core/src/main/java/com/exemple/joc/game/GameConfig.java`.
