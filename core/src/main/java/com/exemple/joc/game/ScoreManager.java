@@ -11,11 +11,12 @@ public class ScoreManager {
     private final GameConfig config;
 
     private int score = 0;
-    private int lastBonusLifeScore = 0;
+    private int nextBonusLifeScore;
     private float scoreTimer = 0f;
 
     public ScoreManager(GameConfig config) {
         this.config = config;
+        this.nextBonusLifeScore = config.bonusLifeScore;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/pixel.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 28;
@@ -26,15 +27,15 @@ public class ScoreManager {
 
     public void update(float delta, Player player, AudioManager audioManager) {
         scoreTimer += delta;
-        while (scoreTimer >= config.scoreInterval) {
-            score += config.scoreStep;
-            scoreTimer -= config.scoreInterval;
+        int intervals = (int) (scoreTimer / config.scoreInterval);
+        if (intervals > 0) {
+            score += intervals * config.scoreStep;
+            scoreTimer -= intervals * config.scoreInterval;
         }
 
-        if (score > 0 && config.bonusLifeScore > 0
-                && score >= lastBonusLifeScore + config.bonusLifeScore) {
+        if (config.bonusLifeScore > 0 && score >= nextBonusLifeScore) {
             player.gainBonusLife();
-            lastBonusLifeScore = (score / config.bonusLifeScore) * config.bonusLifeScore;
+            nextBonusLifeScore += config.bonusLifeScore;
             audioManager.playScore();
         }
     }

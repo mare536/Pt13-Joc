@@ -2,31 +2,59 @@ package com.exemple.joc.game;
 
 import com.badlogic.gdx.math.MathUtils;
 
+/**
+ * Centralized gameplay tuning values for speed, spawning, scoring, and physics.
+ * Presets are simple data-only variants; edit {@link #custom()} to create your own mode.
+ * Chance fields are 0..1, interval fields are positive, and scale fields are 0.6..2.0.
+ */
 public class GameConfig {
     public static final int MAX_LIVES = 5;
 
+    /** Base obstacle speed in pixels per second. */
     public final float baseSpeed;
+    /** Extra speed added per score point. */
     public final float speedIncreasePerScore;
+    /** Starting seconds between spawns. */
     public final float spawnIntervalStart;
+    /** Minimum seconds between spawns. */
     public final float spawnIntervalMin;
+    /** Score divisor used to reduce spawn interval as score grows. */
     public final float spawnIntervalScoreFactor;
+    /** Chance to skip an obstacle spawn (0 = always spawn). */
     public final float spawnSkipChance;
+    /** Chance that a spawn is a bird. */
     public final float birdSpawnChance;
+    /** Extra speed applied to bird obstacles. */
     public final float birdSpeedBonus;
+    /** Minimum obstacle scale multiplier. */
     public final float obstacleScaleMin;
+    /** Maximum obstacle scale multiplier. */
     public final float obstacleScaleMax;
+    /** Seconds of invulnerability after a hit. */
     public final float hitCooldownSeconds;
+    /** Initial lives given to the player. */
     public final int startingLives;
+    /** Whether double jump is enabled. */
     public final boolean allowDoubleJump;
+    /** Score needed for a bonus life (0 disables). */
     public final int bonusLifeScore;
+    /** Seconds per score tick. */
     public final float scoreInterval;
+    /** Points added each score tick. */
     public final int scoreStep;
+    /** Score at which night cycles start. */
     public final int nightStartScore;
+    /** Score length of a full day/night cycle. */
     public final int nightCyclePeriod;
+    /** Score duration of the night portion of the cycle. */
     public final int nightDuration;
+    /** Gravity applied to the player. */
     public final float gravity;
+    /** Vertical velocity applied when jumping. */
     public final float jumpVelocity;
+    /** Vertical velocity applied for fast fall. */
     public final float fastFallVelocity;
+    /** Gravity multiplier while fast falling. */
     public final float fastFallGravityMultiplier;
 
     private GameConfig(float baseSpeed, float speedIncreasePerScore, float spawnIntervalStart,
