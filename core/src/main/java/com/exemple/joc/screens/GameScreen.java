@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.exemple.joc.Main;
@@ -338,7 +339,7 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.P) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             return true;
         }
-        return touchCount >= 2 && touchCount < 3 && lastTouchCount < 2;
+        return touchCount == 2 && lastTouchCount < 2;
     }
 
     private void updateGhostMode(float delta, int touchCount) {
@@ -366,8 +367,13 @@ public class GameScreen implements Screen {
         if (player.getVelocityY() >= 0f) {
             return false;
         }
+        Rectangle playerBounds = player.getBounds();
+        Rectangle obstacleBounds = obstacle.getBounds();
+        float playerCenterX = playerBounds.x + (playerBounds.width * 0.5f);
+        boolean horizontalOk = playerCenterX >= obstacleBounds.x
+            && playerCenterX <= obstacleBounds.x + obstacleBounds.width;
         float stompLimit = obstacle.getY() + (obstacle.getHeight() * gameConfig.stompMinHeightRatio);
-        return player.getY() >= stompLimit;
+        return horizontalOk && player.getY() >= stompLimit;
     }
 
     @Override

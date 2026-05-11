@@ -36,6 +36,10 @@ public class Obstacle {
         return bounds.overlaps(other);
     }
 
+    public Rectangle getBounds() {
+        return bounds;
+    }
+
     public float getY() {
         return y;
     }

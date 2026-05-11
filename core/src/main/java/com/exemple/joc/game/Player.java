@@ -119,10 +119,6 @@ public class Player {
         return y;
     }
 
-    public float getHeight() {
-        return getDrawHeight();
-    }
-
     public float getVelocityY() {
         return velocityY;
     }
