@@ -18,12 +18,15 @@ public class Player {
     private final float jumpVelocity;
     private final float fastFallVelocity;
     private final float fastFallGravityMultiplier;
+    private final boolean shieldEnabled;
+    private final int maxShieldCharges;
 
     private float y = GROUND_Y;
     private float velocityY = 0f;
     private boolean ducking = false;
     private int lives;
     private int remainingJumps;
+    private int shieldCharges;
 
     public Player(GameConfig config) {
         this.lives = config.startingLives;
@@ -33,6 +36,8 @@ public class Player {
         this.jumpVelocity = config.jumpVelocity;
         this.fastFallVelocity = config.fastFallVelocity;
         this.fastFallGravityMultiplier = config.fastFallGravityMultiplier;
+        this.shieldEnabled = config.enableShield;
+        this.maxShieldCharges = config.shieldMaxCharges;
         updateBounds();
     }
 
@@ -72,6 +77,24 @@ public class Player {
         }
     }
 
+    // FUNCION: ESCUDO (se rellena por puntos, ver GameConfig.shieldScoreEvery)
+    public void grantShield() {
+        if (!shieldEnabled || maxShieldCharges <= 0) {
+            return;
+        }
+        if (shieldCharges < maxShieldCharges) {
+            shieldCharges++;
+        }
+    }
+
+    public boolean consumeShield() {
+        if (!shieldEnabled || shieldCharges <= 0) {
+            return false;
+        }
+        shieldCharges--;
+        return true;
+    }
+
     public void loseLife() {
         lives--;
     }
@@ -84,8 +107,30 @@ public class Player {
         return lives;
     }
 
+    public int getShieldCharges() {
+        return shieldCharges;
+    }
+
     public Rectangle getBounds() {
         return bounds;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public float getHeight() {
+        return getDrawHeight();
+    }
+
+    public float getVelocityY() {
+        return velocityY;
+    }
+
+    // FUNCION: REBOTE DE PISOTON (ver GameConfig.stompBounceVelocity)
+    public void bounce(float velocity) {
+        velocityY = velocity;
+        remainingJumps = maxJumps;
     }
 
     private boolean isOnGround() {

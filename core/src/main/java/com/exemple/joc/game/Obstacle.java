@@ -36,6 +36,14 @@ public class Obstacle {
         return bounds.overlaps(other);
     }
 
+    public float getY() {
+        return y;
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
     public void draw(SpriteBatch batch) {
         batch.draw(texture, x, y, width, height);
     }

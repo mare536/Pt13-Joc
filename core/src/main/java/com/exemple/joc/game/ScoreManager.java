@@ -13,11 +13,13 @@ public class ScoreManager {
 
     private int score = 0;
     private int nextBonusLifeScore;
+    private int nextShieldScore;
     private float scoreTimer = 0f;
 
     public ScoreManager(GameConfig config) {
         this.config = config;
         this.nextBonusLifeScore = config.bonusLifeScore;
+        this.nextShieldScore = config.shieldScoreEvery;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/pixel.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 28;
@@ -38,10 +40,32 @@ public class ScoreManager {
             );
         }
 
-        if (config.bonusLifeScore > 0 && score >= nextBonusLifeScore) {
-            player.gainBonusLife();
-            nextBonusLifeScore += config.bonusLifeScore;
-            audioManager.playScore();
+        applyThresholds(player, audioManager);
+    }
+
+    public void addBonus(int amount, Player player, AudioManager audioManager) {
+        if (amount <= 0) {
+            return;
+        }
+        score += amount;
+        applyThresholds(player, audioManager);
+    }
+
+    private void applyThresholds(Player player, AudioManager audioManager) {
+        if (config.bonusLifeScore > 0) {
+            while (score >= nextBonusLifeScore) {
+                player.gainBonusLife();
+                nextBonusLifeScore += config.bonusLifeScore;
+                audioManager.playScore();
+            }
+        }
+
+        if (config.enableShield && config.shieldScoreEvery > 0) {
+            while (score >= nextShieldScore) {
+                player.grantShield();
+                nextShieldScore += config.shieldScoreEvery;
+                audioManager.playScore();
+            }
         }
     }
 
@@ -54,11 +78,26 @@ public class ScoreManager {
         return cyclePosition < config.nightDuration;
     }
 
-    public void drawHud(SpriteBatch batch, int lives, float worldWidth, float worldHeight) {
+    public void drawHud(SpriteBatch batch, int lives, int shields, float ghostTimer,
+                        float ghostCooldown, float worldWidth, float worldHeight) {
         font.setColor(isNight() ? Color.WHITE : Color.BLACK);
         font.draw(batch, "Punts: " + score, 20, worldHeight - 20);
         font.draw(batch, "Vides: " + lives, 20, worldHeight - 55);
         font.draw(batch, isNight() ? "NIT" : "DIA", worldWidth - 90, worldHeight - 20);
+        if (config.enableShield) {
+            font.draw(batch, "Escut: " + shields, 20, worldHeight - 90);
+        }
+        if (config.enableGhostMode) {
+            String ghostLabel = ghostTimer > 0f
+                ? "FANTASMA"
+                : "RECARGA " + MathUtils.ceil(ghostCooldown) + "s";
+            font.draw(batch, ghostLabel, worldWidth - 170, worldHeight - 55);
+        }
+    }
+
+    public void drawPause(SpriteBatch batch, float worldWidth, float worldHeight) {
+        font.setColor(Color.WHITE);
+        font.draw(batch, "PAUSA (P/ESC)", worldWidth / 2f - 90f, worldHeight / 2f + 10f);
     }
 
     public void drawGameOver(SpriteBatch batch, float worldWidth, float worldHeight) {

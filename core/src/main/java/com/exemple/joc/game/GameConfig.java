@@ -56,6 +56,28 @@ public class GameConfig {
     public final float fastFallVelocity;
     /** Gravity multiplier while fast falling. */
     public final float fastFallGravityMultiplier;
+    /** Enables pause toggle (P/ESC on desktop, two fingers on Android). */
+    public final boolean enablePause;
+    /** Enables shield charges earned by score. */
+    public final boolean enableShield;
+    /** Score needed for each shield charge. */
+    public final int shieldScoreEvery;
+    /** Maximum number of shield charges. */
+    public final int shieldMaxCharges;
+    /** Enables stomp (destroy obstacle when landing on top). */
+    public final boolean enableStomp;
+    /** Upward velocity applied on stomp bounce. */
+    public final float stompBounceVelocity;
+    /** Minimum height ratio needed to count as a stomp (0..1). */
+    public final float stompMinHeightRatio;
+    /** Extra score granted for a stomp. */
+    public final int stompScoreBonus;
+    /** Enables ghost mode (temporary no-collision ability). */
+    public final boolean enableGhostMode;
+    /** Ghost mode duration in seconds. */
+    public final float ghostModeDurationSeconds;
+    /** Cooldown before ghost mode can be used again. */
+    public final float ghostModeCooldownSeconds;
 
     private GameConfig(Builder builder) {
         this.baseSpeed = Math.max(0f, builder.baseSpeed);
@@ -83,6 +105,17 @@ public class GameConfig {
         this.jumpVelocity = Math.max(100f, builder.jumpVelocity);
         this.fastFallVelocity = Math.min(-100f, builder.fastFallVelocity);
         this.fastFallGravityMultiplier = Math.max(1f, builder.fastFallGravityMultiplier);
+        this.enablePause = builder.enablePause;
+        this.enableShield = builder.enableShield;
+        this.shieldScoreEvery = Math.max(0, builder.shieldScoreEvery);
+        this.shieldMaxCharges = Math.max(0, builder.shieldMaxCharges);
+        this.enableStomp = builder.enableStomp;
+        this.stompBounceVelocity = Math.max(0f, builder.stompBounceVelocity);
+        this.stompMinHeightRatio = MathUtils.clamp(builder.stompMinHeightRatio, 0f, 1f);
+        this.stompScoreBonus = Math.max(0, builder.stompScoreBonus);
+        this.enableGhostMode = builder.enableGhostMode;
+        this.ghostModeDurationSeconds = Math.max(0.1f, builder.ghostModeDurationSeconds);
+        this.ghostModeCooldownSeconds = Math.max(0f, builder.ghostModeCooldownSeconds);
     }
 
     public static Builder builder() {
@@ -145,6 +178,14 @@ public class GameConfig {
     public static GameConfig doubleJump() {
         return builder()
             .allowDoubleJump(true)
+            .build();
+    }
+
+    public static GameConfig featurePack() {
+        return builder()
+            .enableShield(true)
+            .enableStomp(true)
+            .enableGhostMode(true)
             .build();
     }
 
@@ -244,6 +285,17 @@ public class GameConfig {
             .jumpVelocity(780f)
             .fastFallVelocity(-1800f)
             .fastFallGravityMultiplier(3.0f)
+            .enablePause(true)
+            .enableShield(true)
+            .shieldScoreEvery(150)
+            .shieldMaxCharges(2)
+            .enableStomp(true)
+            .stompBounceVelocity(620f)
+            .stompMinHeightRatio(0.6f)
+            .stompScoreBonus(10)
+            .enableGhostMode(true)
+            .ghostModeDurationSeconds(2.5f)
+            .ghostModeCooldownSeconds(8f)
             .build();
     }
 
@@ -271,6 +323,17 @@ public class GameConfig {
         private float jumpVelocity = 780f;
         private float fastFallVelocity = -1800f;
         private float fastFallGravityMultiplier = 3.0f;
+        private boolean enablePause = true;
+        private boolean enableShield = false;
+        private int shieldScoreEvery = 150;
+        private int shieldMaxCharges = 2;
+        private boolean enableStomp = false;
+        private float stompBounceVelocity = 620f;
+        private float stompMinHeightRatio = 0.6f;
+        private int stompScoreBonus = 10;
+        private boolean enableGhostMode = false;
+        private float ghostModeDurationSeconds = 2.5f;
+        private float ghostModeCooldownSeconds = 8f;
 
         public Builder baseSpeed(float baseSpeed) {
             this.baseSpeed = baseSpeed;
@@ -384,6 +447,61 @@ public class GameConfig {
 
         public Builder fastFallGravityMultiplier(float fastFallGravityMultiplier) {
             this.fastFallGravityMultiplier = fastFallGravityMultiplier;
+            return this;
+        }
+
+        public Builder enablePause(boolean enablePause) {
+            this.enablePause = enablePause;
+            return this;
+        }
+
+        public Builder enableShield(boolean enableShield) {
+            this.enableShield = enableShield;
+            return this;
+        }
+
+        public Builder shieldScoreEvery(int shieldScoreEvery) {
+            this.shieldScoreEvery = shieldScoreEvery;
+            return this;
+        }
+
+        public Builder shieldMaxCharges(int shieldMaxCharges) {
+            this.shieldMaxCharges = shieldMaxCharges;
+            return this;
+        }
+
+        public Builder enableStomp(boolean enableStomp) {
+            this.enableStomp = enableStomp;
+            return this;
+        }
+
+        public Builder stompBounceVelocity(float stompBounceVelocity) {
+            this.stompBounceVelocity = stompBounceVelocity;
+            return this;
+        }
+
+        public Builder stompMinHeightRatio(float stompMinHeightRatio) {
+            this.stompMinHeightRatio = stompMinHeightRatio;
+            return this;
+        }
+
+        public Builder stompScoreBonus(int stompScoreBonus) {
+            this.stompScoreBonus = stompScoreBonus;
+            return this;
+        }
+
+        public Builder enableGhostMode(boolean enableGhostMode) {
+            this.enableGhostMode = enableGhostMode;
+            return this;
+        }
+
+        public Builder ghostModeDurationSeconds(float ghostModeDurationSeconds) {
+            this.ghostModeDurationSeconds = ghostModeDurationSeconds;
+            return this;
+        }
+
+        public Builder ghostModeCooldownSeconds(float ghostModeCooldownSeconds) {
+            this.ghostModeCooldownSeconds = ghostModeCooldownSeconds;
             return this;
         }
 

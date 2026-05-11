@@ -45,6 +45,10 @@ public class GameScreen implements Screen {
     private float obstacleTimer = 0f;
     private float hitCooldown = 0f;
     private boolean lastJumpKeyPressed = false;
+    private boolean paused = false;
+    private float ghostModeTimer = 0f;
+    private float ghostModeCooldown = 0f;
+    private int lastTouchCount = 0;
 
     private final OrthographicCamera camera;
     private final Viewport viewport;
@@ -80,16 +84,32 @@ public class GameScreen implements Screen {
     }
 
     private void update(float delta) {
+        int touchCount = readTouchCount();
+
         if (gameOver) {
             if (Gdx.input.justTouched()) {
                 game.setScreen(new MenuScreen(game));
             }
+            lastTouchCount = touchCount;
+            return;
+        }
+
+        // FUNCION: PAUSA (P/ESC en PC, dos dedos en Android)
+        if (gameConfig.enablePause && isPausePressed(touchCount)) {
+            paused = !paused;
+        }
+
+        if (paused) {
+            lastTouchCount = touchCount;
             return;
         }
 
         boolean isAndroid = Gdx.app.getType() == com.badlogic.gdx.Application.ApplicationType.Android;
         boolean jumpPressed = readJumpPressed(isAndroid);
         boolean downPressed = readDownPressed(isAndroid);
+
+        // FUNCION: MODO FANTASMA (G en PC, tres dedos en Android)
+        updateGhostMode(delta, touchCount);
 
         if (jumpPressed) {
             player.jump(audioManager);
@@ -100,6 +120,7 @@ public class GameScreen implements Screen {
         updateObstacles(delta);
         updateHitCooldown(delta);
         checkCollisions();
+        lastTouchCount = touchCount;
     }
 
     private boolean readJumpPressed(boolean isAndroid) {
@@ -182,6 +203,10 @@ public class GameScreen implements Screen {
     }
 
     private void checkCollisions() {
+        if (ghostModeTimer > 0f) {
+            return;
+        }
+
         if (hitCooldown > 0f) {
             return;
         }
@@ -190,6 +215,23 @@ public class GameScreen implements Screen {
             Obstacle obstacle = obstacles.get(i);
             if (!obstacle.overlaps(player.getBounds())) {
                 continue;
+            }
+
+            // FUNCION: PISOTON (caer encima destruye obstaculo y rebota)
+            if (gameConfig.enableStomp && canStompObstacle(obstacle)) {
+                player.bounce(gameConfig.stompBounceVelocity);
+                scoreManager.addBonus(gameConfig.stompScoreBonus, player, audioManager);
+                obstacles.removeIndex(i);
+                hitCooldown = gameConfig.hitCooldownSeconds;
+                break;
+            }
+
+            // FUNCION: ESCUDO (consume un escudo en vez de vida)
+            if (player.consumeShield()) {
+                audioManager.playScore();
+                obstacles.removeIndex(i);
+                hitCooldown = gameConfig.hitCooldownSeconds;
+                break;
             }
 
             player.loseLife();
@@ -262,13 +304,70 @@ public class GameScreen implements Screen {
             obstacle.draw(batch);
         }
 
-        scoreManager.drawHud(batch, player.getLives(), WORLD_WIDTH, WORLD_HEIGHT);
+        scoreManager.drawHud(
+            batch,
+            player.getLives(),
+            player.getShieldCharges(),
+            ghostModeTimer,
+            ghostModeCooldown,
+            WORLD_WIDTH,
+            WORLD_HEIGHT
+        );
 
         if (gameOver) {
             scoreManager.drawGameOver(batch, WORLD_WIDTH, WORLD_HEIGHT);
         }
+        if (paused) {
+            scoreManager.drawPause(batch, WORLD_WIDTH, WORLD_HEIGHT);
+        }
 
         batch.end();
+    }
+
+    private int readTouchCount() {
+        int touchCount = 0;
+        for (int p = 0; p < 5; p++) {
+            if (Gdx.input.isTouched(p)) {
+                touchCount++;
+            }
+        }
+        return touchCount;
+    }
+
+    private boolean isPausePressed(int touchCount) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            return true;
+        }
+        return touchCount >= 2 && touchCount < 3 && lastTouchCount < 2;
+    }
+
+    private void updateGhostMode(float delta, int touchCount) {
+        if (!gameConfig.enableGhostMode) {
+            return;
+        }
+
+        if (ghostModeTimer > 0f) {
+            ghostModeTimer = Math.max(0f, ghostModeTimer - delta);
+        }
+
+        if (ghostModeCooldown > 0f) {
+            ghostModeCooldown = Math.max(0f, ghostModeCooldown - delta);
+        }
+
+        boolean ghostPressed = Gdx.input.isKeyJustPressed(Input.Keys.G)
+                || (touchCount >= 3 && lastTouchCount < 3);
+        if (ghostPressed && ghostModeTimer <= 0f && ghostModeCooldown <= 0f) {
+            ghostModeTimer = gameConfig.ghostModeDurationSeconds;
+            ghostModeCooldown = gameConfig.ghostModeCooldownSeconds;
+        }
+    }
+
+    private boolean canStompObstacle(Obstacle obstacle) {
+        if (player.getVelocityY() >= 0f) {
+            return false;
+        }
+        float stompLimit = obstacle.getY() + (obstacle.getHeight() * gameConfig.stompMinHeightRatio);
+        return player.getY() >= stompLimit;
     }
 
     @Override
@@ -284,6 +383,10 @@ public class GameScreen implements Screen {
         Gdx.input.setCatchKey(Input.Keys.SPACE, true);
         Gdx.input.setCatchKey(Input.Keys.ENTER, true);
         lastJumpKeyPressed = false;
+        paused = false;
+        ghostModeTimer = 0f;
+        ghostModeCooldown = 0f;
+        lastTouchCount = 0;
         Gdx.input.setInputProcessor(null);
     }
 

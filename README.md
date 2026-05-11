@@ -41,6 +41,7 @@ Available presets:
 - `GameConfig.easy()` (slower and more lives)
 - `GameConfig.hard()` (faster and fewer lives)
 - `GameConfig.doubleJump()` (double jump)
+- `GameConfig.featurePack()` (pausa + escudo + pisoton + fantasma)
 - `GameConfig.denseObstacles()` (more frequent obstacles and higher bird chance)
 - `GameConfig.floaty()` (lower gravity + double jump)
 - `GameConfig.endlessNight()` (night mode from the start)
@@ -62,3 +63,38 @@ Advanced knobs you can tweak in `custom()`:
 - `scoreInterval` / `scoreStep`: score speed and increments
 - `nightStartScore` / `nightCyclePeriod` / `nightDuration`: control day/night cycle
 - `gravity` / `jumpVelocity` / `fastFallVelocity` / `fastFallGravityMultiplier`: player physics
+- `enablePause`: enable pause toggle (P/ESC on desktop, two fingers on Android)
+- `enableShield` / `shieldScoreEvery` / `shieldMaxCharges`: shield charges earned by score
+- `enableStomp` / `stompBounceVelocity` / `stompMinHeightRatio` / `stompScoreBonus`: stomp ability
+- `enableGhostMode` / `ghostModeDurationSeconds` / `ghostModeCooldownSeconds`: ghost mode ability
+
+## Chuleta de funciones (copiar/pegar)
+
+**Dónde ponerlo:** en `GameScreen` constructor, cambia la línea `this.gameConfig = ...`.
+
+**Paquete de funciones (todo activado):**
+```java
+this.gameConfig = GameConfig.featurePack();
+```
+
+**Activar escudo + pisotón + fantasma en tu preset:**
+```java
+this.gameConfig = GameConfig.builder()
+    .enableShield(true)
+    .shieldScoreEvery(150)
+    .shieldMaxCharges(2)
+    .enableStomp(true)
+    .stompBounceVelocity(620f)
+    .stompMinHeightRatio(0.6f)
+    .stompScoreBonus(10)
+    .enableGhostMode(true)
+    .ghostModeDurationSeconds(2.5f)
+    .ghostModeCooldownSeconds(8f)
+    .build();
+```
+
+**Usos por defecto:**
+- **Pausa**: `P` o `ESC` en PC, dos dedos en Android.
+- **Fantasma**: `G` en PC, tres dedos en Android.
+- **Pisotón**: caer encima del obstáculo para romperlo y rebotar.
+- **Escudo**: se gana por puntos y bloquea un golpe.
